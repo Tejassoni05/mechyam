@@ -25,7 +25,7 @@
 //}
 
 
-// ne config class for vercle update 
+// ne config class 
 package com.mechyam.config;
 
 import org.springframework.context.annotation.Bean;
