@@ -55,7 +55,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));  // ✅ Your frontend origin
+        config.setAllowedOrigins(List.of("http://localhost:5173",// ✅ Your frontend  // Local development
+        "https://frontend-mechvam-ybej.vercel.app",  // Your production domain
+        "https://frontend-mechvam-ybej-*.vercel.app",  // All preview deployments
+        "https://frontend-mechvam-ybej-jdir145c9-tajas-projects-6fe6e0f3.vercel.app")); // Current deployment
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));

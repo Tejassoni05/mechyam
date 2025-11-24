@@ -13,12 +13,13 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/mechyam/")
-                        .allowedOrigins("*")
+                registry.addMapping("/**")  // ✅ Changed from "/mechyam/" to "/**"
+                        .allowedOrigins("http://localhost:5173", "https://*.vercel.app",
+                                "https://frontend-mechvam-ybej.*.vercel.app")  // ✅ Changed from "*" to specific origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
-                        .allowCredentials(true);
+                        .allowCredentials(true);  // ✅ This requires specific origins, not "*"
             }
         };
     }
