@@ -41,19 +41,18 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/mechyam/**")
+                registry.addMapping("/api/**")   // 🔥 Correct mapping
                         .allowedOrigins(
                                 "http://localhost:5173",
-                                "https://frontend-mechyam-4tmb.vercel.app",       // Vercel React
-                                "https://*.vercel.app"                          // All Vercel subdomains future-safe
+                                "https://frontend-mechyam-tqdi-k5d2qg8r2-tejas-projects-66e6e0f9.vercel.app",
+                                "https://*.vercel.app"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
-                        .exposedHeaders("Authorization")  // for JWT token
+                        .exposedHeaders("Authorization")
                         .allowCredentials(true)
                         .maxAge(3600);
             }
         };
     }
 }
-

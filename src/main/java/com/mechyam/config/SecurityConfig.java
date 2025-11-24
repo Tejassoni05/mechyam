@@ -107,28 +107,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
 
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // ✅ Allow preflight browser CORS OPTIONS requests
-                .requestMatchers(HttpMethod.OPTIONS, "/").permitAll()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // Allow browser CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // ✅ Allow all OTP/Auth endpoints
-                .requestMatchers(
-                        "/api/admin/auth/login",
-                        "/api/admin/auth/verify-otp",
-                        "/api/admin/auth/resend-otp",
-                        "/api/admin/auth/test"
-                ).permitAll()
+                        // Allow auth/OTP endpoints
+                        .requestMatchers(
+                                "/api/admin/auth/login",
+                                "/api/admin/auth/verify-otp",
+                                "/api/admin/auth/resend-otp",
+                                "/api/admin/auth/test"
+                        ).permitAll()
 
-                // ✅ Protect admin dashboard after OTP
-                .requestMatchers("/api/admin/").hasAuthority("ROLE_ADMIN")
+                        // Protected admin APIs
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
-                // ✅ Allow everything else
-                .anyRequest().permitAll()
-            )
-            // ✅ We use token, so stateless
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        // Allow others
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -138,7 +137,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(List.of("http://localhost:5173"));
+
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "https://frontend-mechyam-4tmb.vercel.app"
@@ -150,7 +149,7 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/", config);
+        source.registerCorsConfiguration("/**", config); // FIXED — VERY IMPORTANT
         return source;
     }
 
