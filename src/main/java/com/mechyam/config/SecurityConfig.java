@@ -28,45 +28,41 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // ✅ Allow preflight requests for all endpoints
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // ✅ Allow all auth endpoints (note: your frontend calls /mechyam/api/admin/auth/login)
                 .requestMatchers(
                         "/api/admin/auth/login",
                         "/api/admin/auth/verify-otp", 
                         "/api/admin/auth/resend-otp",
                         "/api/admin/auth/test"
                 ).permitAll()
-
-                // ✅ Protect admin dashboard after OTP
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-
-                // ✅ Allow everything else
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173",// ✅ Your frontend  // Local development
-        "https://frontend-mechvam-ybej.vercel.app",  // Your production domain
-        "https://frontend-mechvam-ybej-*.vercel.app",  // All preview deployments
-        "https://frontend-mechvam-ybej-jdir145c9-tajas-projects-6fe6e0f3.vercel.app")); // Current deployment
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // ✅ FIXED: Use allowedOriginPatterns for wildcard support
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:[0-9]*",      // All localhost ports
+            "https://*.vercel.app",         // All Vercel deployments
+            "https://frontend-mechvam-*"    // Your specific app
+        ));
+        
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true);  // ✅ Important for cookies/auth tokens
-        config.setMaxAge(3600L);  // ✅ Add this for preflight cache
+        config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);  // ✅ Changed from "/" to "/**"
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
